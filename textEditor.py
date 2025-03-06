@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.filedialog import *
 from tkinter.messagebox import showerror ,askyesnocancel
 fileName = None
+is_dark_mode = False  # Track the current theme state
 
 def newFile():
     global fileName
@@ -52,7 +53,6 @@ def openFile():
         text.insert(0.0, t)
         fileName = f.name  # Update the global fileName
         
-# Add this new function
 def exitApp():
     """Properly terminate the application after asking to save changes"""
     global fileName
@@ -72,6 +72,26 @@ def exitApp():
         
     # Destroy the root window and terminate the program
     root.destroy()
+
+# Add dark mode functions
+def toggle_dark_mode():
+    """Toggle between dark and light mode"""
+    global is_dark_mode
+    is_dark_mode = not is_dark_mode
+    apply_theme()
+
+def apply_theme():
+    """Apply the current theme to the UI elements"""
+    if is_dark_mode:
+        # Dark mode: black background, white text
+        text.config(bg="black", fg="white", insertbackground="white")
+        root.config(bg="black")
+        text_frame.config(bg="black")
+    else:
+        # Light mode: white background, black text (default)
+        text.config(bg="white", fg="black", insertbackground="black")
+        root.config(bg="SystemButtonFace")
+        text_frame.config(bg="SystemButtonFace")
     
 root = Tk()
 root.title("Text Editor")
@@ -108,6 +128,11 @@ filemenu.add_separator()
 filemenu.add_command(label="Quit", command=exitApp)  # Changed to exitApp instead of root.quit
 menubar.add_cascade(label="File", menu=filemenu)
 
+# Add View menu for dark mode
+viewmenu = Menu(menubar)
+viewmenu.add_command(label="Toggle Dark Mode", command=toggle_dark_mode)
+menubar.add_cascade(label="View", menu=viewmenu)
+
 # key binds
 
 root.bind("<Control-n>", lambda e: newFile())
@@ -115,6 +140,8 @@ root.bind("<Control-o>", lambda e: openFile())
 root.bind("<Control-s>", lambda e: saveFile())
 root.bind("<Control-Shift-S>", lambda e: saveAs())
 root.bind("<Control-q>", lambda e: exitApp())
+root.bind("<Control-d>", lambda e: toggle_dark_mode())  # Add dark mode shortcut
 
 root.config(menu=menubar)
+apply_theme()  # Apply the initial theme
 root.mainloop()
