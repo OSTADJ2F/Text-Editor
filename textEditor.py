@@ -3,6 +3,7 @@ from tkinter.filedialog import *
 from tkinter.messagebox import showerror ,askyesnocancel
 fileName = None
 is_dark_mode = False  # Track the current theme state
+font_size = 12  # Default font size
 
 def newFile():
     global fileName
@@ -92,6 +93,30 @@ def apply_theme():
         text.config(bg="white", fg="black", insertbackground="black")
         root.config(bg="SystemButtonFace")
         text_frame.config(bg="SystemButtonFace")
+
+# Add font size functions
+def increase_font_size():
+    """Increase the font size by 2 points"""
+    global font_size
+    font_size += 2
+    apply_font_size()
+
+def decrease_font_size():
+    """Decrease the font size by 2 points but not below 8"""
+    global font_size
+    font_size = max(8, font_size - 2)  # Don't go below 8pt
+    apply_font_size()
+
+def reset_font_size():
+    """Reset font size to default (12pt)"""
+    global font_size
+    font_size = 12
+    apply_font_size()
+
+def apply_font_size():
+    """Apply the current font size to the text widget"""
+    current_font = ("TkDefaultFont", font_size)
+    text.config(font=current_font)
     
 root = Tk()
 root.title("Text Editor")
@@ -110,7 +135,7 @@ scrollbar_x = Scrollbar(text_frame, orient=HORIZONTAL)
 scrollbar_x.pack(side=BOTTOM, fill=X)
 
 # Configure text widget with scrollbars
-text = Text(text_frame, wrap=NONE)
+text = Text(text_frame, wrap=NONE, font=("TkDefaultFont", font_size))
 text.pack(side=LEFT, fill=BOTH, expand=True)
 
 # Connect scrollbars to text widget
@@ -128,9 +153,13 @@ filemenu.add_separator()
 filemenu.add_command(label="Quit", command=exitApp)  # Changed to exitApp instead of root.quit
 menubar.add_cascade(label="File", menu=filemenu)
 
-# Add View menu for dark mode
+# Add View menu for dark mode and font size
 viewmenu = Menu(menubar)
 viewmenu.add_command(label="Toggle Dark Mode", command=toggle_dark_mode)
+viewmenu.add_separator()
+viewmenu.add_command(label="Increase Font Size", command=increase_font_size)
+viewmenu.add_command(label="Decrease Font Size", command=decrease_font_size)
+viewmenu.add_command(label="Reset Font Size", command=reset_font_size)
 menubar.add_cascade(label="View", menu=viewmenu)
 
 # key binds
@@ -141,7 +170,13 @@ root.bind("<Control-s>", lambda e: saveFile())
 root.bind("<Control-Shift-S>", lambda e: saveAs())
 root.bind("<Control-q>", lambda e: exitApp())
 root.bind("<Control-d>", lambda e: toggle_dark_mode())  # Add dark mode shortcut
+# Font size shortcuts
+root.bind("<Control-plus>", lambda e: increase_font_size())
+root.bind("<Control-equal>", lambda e: increase_font_size())  # Alternative for plus
+root.bind("<Control-minus>", lambda e: decrease_font_size())
+root.bind("<Control-0>", lambda e: reset_font_size())
 
 root.config(menu=menubar)
 apply_theme()  # Apply the initial theme
+# Initial font size is already set when creating the text widget
 root.mainloop()
